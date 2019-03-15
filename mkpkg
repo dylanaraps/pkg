@@ -85,16 +85,12 @@ pkg_checksum() {
     done
 
     md5sum -- $files > .md5sum
+    log "checksums saved to .md5sum"
     exit
 }
 
 is_remote() {
-    case $src in
-        *https://*|*http://*)
-            return 0
-        ;;
-    esac
-
+    [ -z "${src##*://*}" ] && return 0
     return 1
 }
 
