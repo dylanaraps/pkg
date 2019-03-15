@@ -1,10 +1,9 @@
 #!/bin/sh
-# shellcheck disable=SC2154,SC2123 source=/dev/null
+# shellcheck disable=2086,2154,2123,2034 source=/dev/null
 #
 # mkpkg - package builder for kiss linux.
 
 pkgfile_read() {
-    # Read the pkgfile.
     [ -f pkgfile ] || die "pkgfile not found"
 
     # Unset PATH while checking pkgfile.
@@ -20,31 +19,58 @@ pkgfile_read() {
     PATH=$old_PATH
 }
 
-get_pkg() {
+pkg_get() {
     mkdir -p build || die "couldn't create build dir."
+    cd build >/dev/null || die "can't access build dir."
 
-    for src in $source; do
-        [ -f "build/${src##*/}" ] && continue
+    for src; do
+        [ -f "${src##*/}" ] && continue
 
         printf '%s\n' "=> downloading $src."
-        wget "$src" -P build || die "failed to download $src"
+        wget "$src" || die "failed to download $src"
     done
 
-    # Check if there are source files.
-    _() { [ "$1" != "build/*" ] && dir_items=$#; }; _ build/*
+    [ -z "$source" ] && return
 
-    [ -z "$dir_items" ] && die "no source files found"
+    # Check if there are source files.
+    _() { [ "$1" = "./*" ] && die "no source files found"; }; _ ./*
+}
+
+pkg_extract() {
+    mkdir -p src pkg
+
+    for pkg; do
+        pkg_name=${pkg##*/}
+
+        case $pkg in
+			*.tar|*.tar.gz|*.tar.xz|*.tar.bz2|*.tar.lzma|\
+            *.tar.lz|*.txz|*.tgz|*.tbz2|*.zip|*.rpm|*.7z)
+                tar xavf "$pkg_name" -C src --strip-components 1 ||
+                    die "couldn't extract $pkg_name"
+            ;;
+        esac
+    done
+
+    cd src >/dev/null || die "couldn't access extracted files"
+}
+
+pkg_build() {
+    set -e
+    BUILD=../pkg
+
+    build
 }
 
 die() {
-    # Display an error message to stderr and exit with error 1.
     printf '%s\n' "error: $1" >&2
     exit 1
 }
 
 main() {
     pkgfile_read
-    get_pkg
+    pkg_get $source
+    pkg_extract $source
+    pkg_build
 }
 
 main "$@"

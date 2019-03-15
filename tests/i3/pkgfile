@@ -23,7 +23,7 @@ build() {
 		--enable-debug=no
 
 	make
-	make DESTDIR="$PKG" install
+	make DESTDIR="$BUILD" install
 
-	rm -rf -- "$PKG/usr/share/doc" "$PKG/usr/share/man"
+	rm -rf -- "$BUILD/usr/share/doc" "$BUILD/usr/share/man"
 }
