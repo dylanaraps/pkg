@@ -5,7 +5,7 @@ name=neofetch
 version=6.0.0
 release=1
 desc="Pretty system information script"
-source="https://github.com/dylanaraps/$name/archive/$version.tar.gz test"
+source="https://github.com/dylanaraps/$name/archive/$version.tar.gz"
 depends="bash"
 
 build() {
