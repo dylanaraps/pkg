@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/ash
 # shellcheck disable=SC2154 source=/dev/null
 #
 # mkpkg - package builder for kiss linux.
@@ -7,7 +7,17 @@ pkgfile_read() {
     # Read the pkgfile.
     [ -f pkgfile ] || die "pkgfile not found"
 
+    # Unset PATH while checking pkgfile.
+    old_PATH=$PATH
+    PATH=
+
     . pkgfile || die "syntax error in pkgfile"
+
+    [ -z "$name" ] &&    die "name not defined in pkgfile"
+    [ -z "$version" ] && die "version not defined in pkgfile"
+
+    type build >/dev/null || die "build() not found in pkgfile."
+    PATH=$old_PATH
 }
 
 die() {
