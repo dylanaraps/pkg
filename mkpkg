@@ -20,20 +20,14 @@ pkgfile_read() {
     PATH=$old_PATH
 }
 
-download() {
-    # TODO: Parse $1 and check if it's a url.
-    printf '%s\n' "=> downloading $1."
-
-    wget "$1" -P build || die "failed to download $1"
-}
-
-dl_source() {
+get_pkg() {
     mkdir -p build || die "couldn't create build dir."
 
     for src in $source; do
         [ -f "build/${src##*/}" ] && continue
 
-        download "$src"
+        printf '%s\n' "=> downloading $src."
+        wget "$src" -P build || die "failed to download $src"
     done
 
     # Check if there are source files.
@@ -50,7 +44,7 @@ die() {
 
 main() {
     pkgfile_read
-    dl_source
+    get_pkg
 }
 
 main "$@"
