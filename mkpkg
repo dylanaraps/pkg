@@ -1,9 +1,23 @@
 #!/bin/sh
+# shellcheck disable=SC2154 source=/dev/null
 #
 # mkpkg - package builder for kiss linux.
 
+pkgfile_read() {
+    # Read the pkgfile.
+    [ -f pkgfile ] || die "pkgfile not found"
+
+    . pkgfile || die "syntax error in pkgfile"
+}
+
+die() {
+    # Display an error message to stderr and exit with error 1.
+    printf '%s\n' "error: $1" >&2
+    exit 1
+}
+
 main() {
-    :
+    pkgfile_read
 }
 
 main "$@"
