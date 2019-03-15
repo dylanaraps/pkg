@@ -1,11 +1,12 @@
-# Description: Pretty system information script.
 # URL:         https://github.com/dylanaraps/neofetch
 # Maintainer:  dylan
 
 name=neofetch
 version=6.0.0
 release=1
-source="https://github.com/dylanaraps/$name/archive/$version.tar.gz"
+desc="Pretty system information script"
+source="https://github.com/dylanaraps/$name/archive/$version.tar.gz test"
+depends="bash"
 
 build() {
     DESTDIR="$BUILD" make install

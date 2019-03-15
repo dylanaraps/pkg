@@ -20,23 +20,23 @@ pkgfile_read() {
 }
 
 pkg_get() {
-    mkdir -p build || die "couldn't create build dir."
-    cd build >/dev/null || die "can't access build dir."
+    mkdir -p build || die "couldn't create build dir"
 
     for src; do
         [ -f "${src##*/}" ] && continue
 
-        printf '%s\n' "=> downloading $src."
-        wget "$src" || die "failed to download $src"
+        log "downloading $src."
+        wget -P build -- "$src" || die "failed to download $src"
     done
 
     [ -z "$source" ] && return
 
     # Check if there are source files.
-    _() { [ "$1" = "./*" ] && die "no source files found"; }; _ ./*
+    _() { [ "$1" = "build/*" ] && die "no source files found"; }; _ build/*
 }
 
 pkg_extract() {
+    cd build || die "can't access build dir"
     mkdir -p src pkg
 
     for pkg; do
@@ -45,25 +45,38 @@ pkg_extract() {
         case $pkg in
 			*.tar|*.tar.gz|*.tar.xz|*.tar.bz2|*.tar.lzma|\
             *.tar.lz|*.txz|*.tgz|*.tbz2|*.zip|*.rpm|*.7z)
-                tar xavf "$pkg_name" -C src --strip-components 1 ||
+                tar xavf "$pkg_name" -C src --strip-components 1 >/dev/null ||
                     die "couldn't extract $pkg_name"
+
+                rm -f "$pkg_name"
             ;;
+
+            *)  cp -R "../$pkg_name" src ;;
         esac
     done
-
-    cd src >/dev/null || die "couldn't access extracted files"
 }
 
 pkg_build() {
-    set -e
-    BUILD=../pkg
+    cd src || die "can't access src dir."
 
-    build
+    BUILD=../pkg
+    (set -e; build) || die "failed to build $name-$version"
+
+    cd ..
+    tar cvf "$name-$version.tar.gz" -C pkg . >/dev/null ||
+        die "failed to create package"
+
+    log "successfuly built $name"
+    log "package is at ./build/$name-$version.tar.gz"
 }
 
 die() {
     printf '%s\n' "error: $1" >&2
     exit 1
+}
+
+log() {
+    printf '\e[31m=>\e[m %s\n' "$1"
 }
 
 main() {

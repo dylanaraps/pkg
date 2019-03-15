@@ -1,29 +1,26 @@
-# Description: An improved tiling window manager
 # URL:         https://i3wm.org/
 # Maintainer:  Seif Lekbir, seiflek(at)zoho(dot)com
 
 name=i3-wm
-version=4.15
+version=4.16.1
 release=1
+desc="An improved tiling window manager"
 
-source="https://github.com/i3/i3/archive/$version/i3-$version.tar.gz"
+source="https://github.com/i3/i3/archive/$version/i3-$version.tar.gz i3-musl-glob-tilde.patch"
 depends="pkg-config bison flex libxkbcommon xorg-xcb-util-keysyms xorg-xcb-util xorg-xcb-util-wm xorg-xcb-util-cursor xorg-xcb-util-xrm startup-notification cairo libev yajl pango perl"
 
 build() {
-	cd "i3-$version" || return 1
+    autoreconf -fvi
 
-	autoreconf -fi
-	mkdir -p build
-    cd build || return 1
-
-	../configure \
+	./configure \
         --prefix=/usr \
-		--sysconfdir=/etc \
-		--disable-sanitizers \
-		--enable-debug=no
+        --disable-builddir \
+        --sysconfdir=/etc \
+        --disable-sanitizers \
+        --enable-debug=no
+
+    patch -p1 -i i3-musl-glob-tilde.patch
 
 	make
 	make DESTDIR="$BUILD" install
-
-	rm -rf -- "$BUILD/usr/share/doc" "$BUILD/usr/share/man"
 }
