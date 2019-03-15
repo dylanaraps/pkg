@@ -23,17 +23,13 @@ pkg_get() {
     mkdir -p build || die "couldn't create build dir"
 
     for src; do
-        case $src in
-            *https://*|*http://*)
-                log "downloading $src."
-                wget -P build -- "$src" || die "failed to download $src"
-            ;;
-
-            *)
-                [ -f "$src" ] && continue
-                die "source file $src not found"
-            ;;
-        esac
+        if is_remote "$src"; then
+            log "downloading $src."
+            wget -P build -- "$src" || die "failed to download $src"
+        else
+            [ -f "$src" ] && continue
+            die "source file $src not found"
+        fi
     done
 
     [ -z "$#" ] && return
@@ -63,9 +59,11 @@ pkg_extract() {
 
 pkg_build() {
     cd src >/dev/null || die "can't access src dir."
-
     BUILD=../pkg
-    (set -e; build) || die "failed to build $name-$version"
+
+    set -e
+    build || die "failed to build $name-$version"
+    set +e
 
     cd ../..
     tar cvf "$name-$version.tar.gz" -C build/pkg . >/dev/null ||
@@ -73,6 +71,31 @@ pkg_build() {
 
     log "successfuly built $name"
     log "package is at $name-$version.tar.gz"
+}
+
+pkg_checksum() {
+    pkg_get "$@"
+
+    for src; do
+        if is_remote "$src"; then
+            files="$files build/${src##*/}"
+        else
+            files="$files $src"
+        fi
+    done
+
+    md5sum -- $files > .md5sum
+    exit
+}
+
+is_remote() {
+    case $src in
+        *https://*|*http://*)
+            return 0
+        ;;
+    esac
+
+    return 1
 }
 
 clean() {
@@ -88,6 +111,10 @@ log() {
     printf '\e[31m=>\e[m %s\n' "$1"
 }
 
+args() {
+    [ "$1" = checksum ] && pkg_checksum $source
+}
+
 main() {
     pkgfile_pwd=$PWD
 
@@ -95,6 +122,7 @@ main() {
     clean
 
     pkgfile_read
+    args "$@"
     pkg_get $source
     pkg_extract $source
     pkg_build
