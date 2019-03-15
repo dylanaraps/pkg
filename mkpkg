@@ -35,6 +35,12 @@ dl_source() {
 
         download "$src"
     done
+
+    # Check if there are source files.
+    _() { dir_items=$#; }; _ build/*
+
+    # Keep shellcheck happy while this function is unfinished.
+    : "$dir_items"
 }
 
 die() {
