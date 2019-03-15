@@ -1,4 +1,4 @@
-#!/bin/ash
+#!/bin/sh
 # shellcheck disable=SC2154 source=/dev/null
 #
 # mkpkg - package builder for kiss linux.
