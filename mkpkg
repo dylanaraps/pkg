@@ -37,10 +37,9 @@ dl_source() {
     done
 
     # Check if there are source files.
-    _() { dir_items=$#; }; _ build/*
+    _() { [ "$1" != "build/*" ] && dir_items=$#; }; _ build/*
 
-    # Keep shellcheck happy while this function is unfinished.
-    : "$dir_items"
+    [ -z "$dir_items" ] && die "no source files found"
 }
 
 die() {
