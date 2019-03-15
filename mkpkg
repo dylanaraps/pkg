@@ -24,20 +24,31 @@ pkg_get() {
     mkdir -p build || die "couldn't create build dir"
 
     for src; do
-        [ -f "${src##*/}" ] && continue
+        case $src in
+            *https://*|*http://*)
+                log "downloading $src."
+                wget -P build -- "$src" ||
+                    die "failed to download $src"
+            ;;
 
-        log "downloading $src."
-        wget -P build -- "$src" || die "failed to download $src"
+            *)
+                if [ -f "$src" ]; then
+                    continue
+                else
+                    die "source file $src not found"
+                fi
+            ;;
+        esac
     done
 
     [ -z "$source" ] && return
 
     # Check if there are source files.
-    _() { [ "$1" = "build/*" ] && die "no source files found"; }; _ build/*
+    _(){ [ "$1" = "build/*" ] && die "no source files found";}; _ build/*
 }
 
 pkg_extract() {
-    cd build || die "can't access build dir"
+    cd build >/dev/null || die "can't access build dir"
     mkdir -p src pkg
 
     for pkg; do
@@ -56,7 +67,7 @@ pkg_extract() {
 }
 
 pkg_build() {
-    cd src || die "can't access src dir."
+    cd src >/dev/null || die "can't access src dir."
 
     BUILD=../pkg
     (set -e; build) || die "failed to build $name-$version"
@@ -69,6 +80,11 @@ pkg_build() {
     log "package is at $name-$version.tar.gz"
 }
 
+clean() {
+    [ -d "$pkgfile_pwd/build" ] &&
+        rm -rf "$pkgfile_pwd/build"
+}
+
 die() {
     printf '%s\n' "error: $1" >&2
     exit 1
@@ -79,6 +95,11 @@ log() {
 }
 
 main() {
+    pkgfile_pwd=$PWD
+
+    trap clean EXIT INT
+    clean
+
     pkgfile_read
     pkg_get $source
     pkg_extract $source
