@@ -1,0 +1,30 @@
+# vim:ft=sh
+# Description: An improved tiling window manager
+# URL:         https://i3wm.org/
+# Maintainer:  Seif Lekbir, seiflek(at)zoho(dot)com
+
+name=i3-wm
+version=4.15
+release=1
+
+source="https://github.com/i3/i3/archive/$version/i3-$version.tar.gz"
+depends="pkg-config bison flex libxkbcommon xorg-xcb-util-keysyms xorg-xcb-util xorg-xcb-util-wm xorg-xcb-util-cursor xorg-xcb-util-xrm startup-notification cairo libev yajl pango perl"
+
+build() {
+	cd "i3-$version" || return 1
+
+	autoreconf -fi
+	mkdir -p build
+    cd build || return 1
+
+	../configure \
+        --prefix=/usr \
+		--sysconfdir=/etc \
+		--disable-sanitizers \
+		--enable-debug=no
+
+	make
+	make DESTDIR="$PKG" install
+
+	rm -rf -- "$PKG/usr/share/doc" "$PKG/usr/share/man"
+}
