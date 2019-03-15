@@ -32,8 +32,6 @@ pkg_get() {
         fi
     done
 
-    [ -z "$#" ] && return
-
     # Check if there are source files.
     _(){ [ "$1" = "build/*" ] && die "no source files found";}; _ build/*
 }
