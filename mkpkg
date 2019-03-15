@@ -20,6 +20,21 @@ pkgfile_read() {
     PATH=$old_PATH
 }
 
+download() {
+    # TODO: Parse $1 and check if it's a url.
+    printf '%s\n' "=> downloading $1."
+
+    wget "$1" || err "failed to download $1"
+}
+
+dl_source() {
+    for src in $source; do
+        [ -e "$src" ] && continue
+
+        download "$src"
+    done
+}
+
 die() {
     # Display an error message to stderr and exit with error 1.
     printf '%s\n' "error: $1" >&2
@@ -28,6 +43,7 @@ die() {
 
 main() {
     pkgfile_read
+    dl_source
 }
 
 main "$@"
