@@ -1,0 +1,9 @@
+#!/bin/sh
+#
+# mkpkg - package builder for kiss linux.
+
+main() {
+    :
+}
+
+main "$@"
