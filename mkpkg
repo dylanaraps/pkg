@@ -43,7 +43,7 @@ pkg_extract() {
         pkg_name=${pkg##*/}
 
         case $pkg in
-			*.tar|*.tar.gz|*.tar.xz|*.tar.bz2|*.tar.lzma|\
+            *.tar|*.tar.gz|*.tar.xz|*.tar.bz2|*.tar.lzma|\
             *.tar.lz|*.txz|*.tgz|*.tbz2|*.zip|*.rpm|*.7z)
                 tar xavf "$pkg_name" -C src --strip-components 1 >/dev/null ||
                     die "couldn't extract $pkg_name"
