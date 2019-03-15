@@ -27,21 +27,17 @@ pkg_get() {
         case $src in
             *https://*|*http://*)
                 log "downloading $src."
-                wget -P build -- "$src" ||
-                    die "failed to download $src"
+                wget -P build -- "$src" || die "failed to download $src"
             ;;
 
             *)
-                if [ -f "$src" ]; then
-                    continue
-                else
-                    die "source file $src not found"
-                fi
+                [ -f "$src" ] && continue
+                die "source file $src not found"
             ;;
         esac
     done
 
-    [ -z "$source" ] && return
+    [ -z "$#" ] && return
 
     # Check if there are source files.
     _(){ [ "$1" = "build/*" ] && die "no source files found";}; _ build/*
@@ -81,8 +77,7 @@ pkg_build() {
 }
 
 clean() {
-    [ -d "$pkgfile_pwd/build" ] &&
-        rm -rf "$pkgfile_pwd/build"
+    [ -d "$pkgfile_pwd/build" ] && rm -rf "$pkgfile_pwd/build"
 }
 
 die() {
