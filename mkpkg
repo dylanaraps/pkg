@@ -47,8 +47,6 @@ pkg_extract() {
             *.tar.lz|*.txz|*.tgz|*.tbz2|*.zip|*.rpm|*.7z)
                 tar xavf "$pkg_name" -C src --strip-components 1 >/dev/null ||
                     die "couldn't extract $pkg_name"
-
-                rm -f "$pkg_name"
             ;;
 
             *)  cp -R "../$pkg_name" src ;;
@@ -62,12 +60,12 @@ pkg_build() {
     BUILD=../pkg
     (set -e; build) || die "failed to build $name-$version"
 
-    cd ..
-    tar cvf "$name-$version.tar.gz" -C pkg . >/dev/null ||
+    cd ../..
+    tar cvf "$name-$version.tar.gz" -C build/pkg . >/dev/null ||
         die "failed to create package"
 
     log "successfuly built $name"
-    log "package is at ./build/$name-$version.tar.gz"
+    log "package is at $name-$version.tar.gz"
 }
 
 die() {
