@@ -1,5 +1,5 @@
 #!/bin/sh
-# shellcheck disable=SC2154 source=/dev/null
+# shellcheck disable=SC2154,SC2123 source=/dev/null
 #
 # mkpkg - package builder for kiss linux.
 
