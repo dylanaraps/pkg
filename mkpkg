@@ -117,6 +117,9 @@ main() {
 
     pkgfile_read
     args "$@"
+
+    [ -f .md5sum ] || die "checksums not found, run 'mkpkg checksum'"
+
     pkg_get $source
     pkg_extract $source
     pkg_build
