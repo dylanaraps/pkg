@@ -10,6 +10,7 @@ Package Manager for Kiss Linux
 - `mkpkg`
     - [x] Check checksums
     - [ ] Check dependencies
-    - [ ] Add config file.
+    - [ ] Add config file
+    - [ ] Use `fakeroot`
     - [x] `-h`
     - [x] `-v`
