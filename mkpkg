@@ -27,8 +27,6 @@ pkg_get() {
             die "source file $src not found"
         fi
     done
-
-    _(){ [ "$1" = "build/*" ] && die "no source files found";}; _ build/*
 }
 
 pkg_verify() {
@@ -55,6 +53,8 @@ pkg_extract() {
             *)  cp -f "../$pkg_name" src ;;
         esac
     done
+
+    _(){ [ "$1" = "src/*" ] && die "no source files found";}; _ src/*
 }
 
 pkg_build() {
