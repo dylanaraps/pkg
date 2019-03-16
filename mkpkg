@@ -17,6 +17,8 @@ pkgfile_read() {
 
 pkg_get() {
     mkdir -p build || die "couldn't create build dir"
+    # cp ~/build/gcc-8.3.0.tar.xz build/
+    # return
 
     for src in $source; do
         if is_remote "$src"; then
@@ -64,7 +66,7 @@ pkg_extract() {
 
 pkg_build() {
     cd src >/dev/null || die "can't access src dir."
-    BUILD=../pkg
+    BUILD=$pkgfile_pwd/build/pkg
 
     set -e
     build || die "failed to build $name-$version"
