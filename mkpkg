@@ -28,7 +28,6 @@ pkg_get() {
         fi
     done
 
-    # Check if there are source files.
     _(){ [ "$1" = "build/*" ] && die "no source files found";}; _ build/*
 }
 
@@ -53,7 +52,7 @@ pkg_extract() {
                     die "couldn't extract $pkg_name"
             ;;
 
-            *)  cp -R "../$pkg_name" src ;;
+            *)  cp -f "../$pkg_name" src ;;
         esac
     done
 }
