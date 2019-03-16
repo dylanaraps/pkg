@@ -4,7 +4,7 @@
 name=neofetch
 version=6.0.0
 release=1
-desc=
+desc="Simple information script"
 source="https://github.com/dylanaraps/$name/archive/$version.tar.gz"
 depends="bash"
 

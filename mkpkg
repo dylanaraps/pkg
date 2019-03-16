@@ -66,11 +66,11 @@ pkg_build() {
     set +e
 
     cd ../..
-    tar cvf "$name-$version.tar.gz" -C build/pkg . >/dev/null ||
+    tar cvf "$name-$version-$release.tar.gz" -C build/pkg . >/dev/null ||
         die "failed to create package"
 
     log "successfuly built $name"
-    log "package is at $name-$version.tar.gz"
+    log "package is at $name-$version-$release.tar.gz"
 }
 
 pkg_checksum() {
@@ -82,7 +82,7 @@ pkg_checksum() {
         fi
     done
 
-    md5sum -- $files > "$1"
+    md5sum -- $files > "$1" || die "failed to generate checksums"
     log "Saved checksum to $1"
 }
 
