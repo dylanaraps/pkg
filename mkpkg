@@ -20,7 +20,7 @@ pkg_get() {
 
     for src in $source; do
         if is_remote "$src"; then
-            log "downloading $src."
+            log "downloading $src"
             wget -P build -- "$src" || die "failed to download $src"
         else
             [ -f "$src" ] && continue
