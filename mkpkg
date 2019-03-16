@@ -22,7 +22,7 @@ pkgfile_read() {
 pkg_get() {
     mkdir -p build || die "couldn't create build dir"
 
-    for src; do
+    for src in $source; do
         if is_remote "$src"; then
             log "downloading $src."
             wget -P build -- "$src" || die "failed to download $src"
@@ -36,11 +36,18 @@ pkg_get() {
     _(){ [ "$1" = "build/*" ] && die "no source files found";}; _ build/*
 }
 
+pkg_verify() {
+    pkg_checksum build/.md5sum
+    diff .md5sum build/.md5sum ||
+        die "checksums of sources do not match checksums of package" \
+            "run 'mkpkg checksum' to update checksums"
+}
+
 pkg_extract() {
     cd build >/dev/null || die "can't access build dir"
     mkdir -p src pkg
 
-    for pkg; do
+    for pkg in $source; do
         pkg_name=${pkg##*/}
 
         case $pkg in
@@ -72,9 +79,7 @@ pkg_build() {
 }
 
 pkg_checksum() {
-    pkg_get "$@"
-
-    for src; do
+    for src in $source; do
         if is_remote "$src"; then
             files="$files build/${src##*/}"
         else
@@ -82,9 +87,8 @@ pkg_checksum() {
         fi
     done
 
-    md5sum -- $files > .md5sum
-    log "checksums saved to .md5sum"
-    exit
+    md5sum -- $files > "$1"
+    log "Saved checksum to $1"
 }
 
 is_remote() {
@@ -98,6 +102,7 @@ clean() {
 
 die() {
     printf '%s\n' "error: $1" >&2
+    [ "$2" ] && die "$2"
     exit 1
 }
 
@@ -106,7 +111,11 @@ log() {
 }
 
 args() {
-    [ "$1" = checksum ] && pkg_checksum $source
+    [ "$1" = checksum ] && {
+        pkg_get
+        pkg_checksum .md5sum
+        exit
+    }
 }
 
 main() {
@@ -120,8 +129,9 @@ main() {
 
     [ -f .md5sum ] || die "checksums not found, run 'mkpkg checksum'"
 
-    pkg_get $source
-    pkg_extract $source
+    pkg_get
+    pkg_verify
+    pkg_extract
     pkg_build
 }
 
