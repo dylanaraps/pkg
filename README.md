@@ -8,7 +8,7 @@ Package Manager for Kiss Linux
 ## TODO
 
 - `mkpkg`
-    - [ ] Check checksums
+    - [x] Check checksums
     - [ ] Check dependencies
     - [ ] `-h`
     - [ ] `-v`
