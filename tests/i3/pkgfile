@@ -12,7 +12,7 @@ depends="pkg-config bison flex libxkbcommon xorg-xcb-util-keysyms xorg-xcb-util 
 build() {
     autoreconf -fvi
 
-	./configure \
+    ./configure \
         --prefix=/usr \
         --disable-builddir \
         --sysconfdir=/etc \
@@ -21,6 +21,6 @@ build() {
 
     patch -p1 -i i3-musl-glob-tilde.patch
 
-	make
-	make DESTDIR="$BUILD" install
+    make
+    make DESTDIR="$BUILD" install
 }
