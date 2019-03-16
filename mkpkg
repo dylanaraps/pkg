@@ -39,7 +39,7 @@ pkg_verify() {
 }
 
 pkg_extract() {
-    cd build >/dev/null || die "can't access build dir"
+    cd build || die "can't access build dir"
     mkdir -p src pkg
 
     for pkg in $source; do
@@ -48,7 +48,7 @@ pkg_extract() {
         case $pkg in
             *.tar|*.tar.gz|*.tar.xz|*.tar.bz2|*.tar.lzma|\
             *.tar.lz|*.txz|*.tgz|*.tbz2|*.zip|*.rpm|*.7z)
-                tar xavf "$pkg_name" -C src --strip-components 1 >/dev/null ||
+                tar xavf "$pkg_name" -C src --strip-components 1 ||
                     die "couldn't extract $pkg_name"
             ;;
 
@@ -131,7 +131,7 @@ main() {
 
     pkg_get
     pkg_verify
-    pkg_extract
+    pkg_extract >/dev/null
     pkg_build
 }
 
