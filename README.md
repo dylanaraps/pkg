@@ -10,5 +10,6 @@ Package Manager for Kiss Linux
 - `mkpkg`
     - [x] Check checksums
     - [ ] Check dependencies
-    - [ ] `-h`
-    - [ ] `-v`
+    - [ ] Add config file.
+    - [x] `-h`
+    - [x] `-v`
