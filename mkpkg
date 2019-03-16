@@ -96,8 +96,7 @@ clean() {
 }
 
 die() {
-    printf '%s\n' "error: $1" >&2
-    [ -n "$2" ] && die "$2"
+    printf 'error: %s\n' "$@" >&2
     exit 1
 }
 
