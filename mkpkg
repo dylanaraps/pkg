@@ -106,11 +106,16 @@ log() {
 }
 
 args() {
+    [ -z "$1" ] && return
+
+    [ "$1" = -v ] && printf '%s\n' "mkpkg 0.1.0"
+    [ "$1" = -h ] && printf '%s\n' "usage: mkpkg, mkpkg checksum " >&2
+
     [ "$1" = checksum ] && {
         pkg_get
         pkg_checksum .md5sum
-        exit
     }
+    exit
 }
 
 main() {
