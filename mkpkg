@@ -10,6 +10,7 @@ pkgfile_read() {
 
     [ -z "$name" ] &&    die "name not defined in pkgfile"
     [ -z "$version" ] && die "version not defined in pkgfile"
+    [ -z "$release" ] && die "release not defined in pkgfile"
 
     PATH= type build >/dev/null || die "build() not found in pkgfile."
 }
