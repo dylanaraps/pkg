@@ -30,10 +30,15 @@ pkg_get() {
 }
 
 pkg_verify() {
-    pkg_checksum build/.md5sum
-    diff .md5sum build/.md5sum ||
+    pkg_checksum build/.checksum
+    diff .checksum build/.checksum ||
         die "checksums of sources do not match checksums of package" \
             "run 'mkpkg checksum' to update checksums"
+}
+
+pkg_manifest() {
+    cd ../pkg
+    find . | sed 's/^\.//' > ../../.manifest
 }
 
 pkg_extract() {
@@ -65,7 +70,9 @@ pkg_build() {
     build || die "failed to build $name-$version"
     set +e
 
-    cd ../..
+    pkg_manifest
+
+    cd "$pkgfile_pwd"
     tar cvf "$name-$version-$release.tar.gz" -C build/pkg . >/dev/null ||
         die "failed to create package"
 
@@ -82,7 +89,7 @@ pkg_checksum() {
         fi
     done
 
-    md5sum -- $files > "$1" || die "failed to generate checksums"
+    sha256sum -- $files > "$1" || die "failed to generate checksums"
     log "Saved checksum to $1"
 }
 
@@ -96,12 +103,12 @@ clean() {
 }
 
 die() {
-    printf 'error: %s\n' "$@" >&2
+    printf '\e[31m!>\e[m %s\n' "$@" >&2
     exit 1
 }
 
 log() {
-    printf '\e[31m=>\e[m %s\n' "$1"
+    printf '\e[32m=>\e[m %s\n' "$1"
 }
 
 args() {
@@ -112,7 +119,7 @@ args() {
 
     [ "$1" = checksum ] && {
         pkg_get
-        pkg_checksum .md5sum
+        pkg_checksum .checksum
     }
     exit
 }
@@ -126,7 +133,7 @@ main() {
     pkgfile_read
     args "$@"
 
-    [ -f .md5sum ] || die "checksums not found, run 'mkpkg checksum'"
+    [ -f .checksum ] || die "checksums not found, run 'mkpkg checksum'"
 
     pkg_get
     pkg_verify
