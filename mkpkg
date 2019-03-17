@@ -39,7 +39,7 @@ pkg_verify() {
 }
 
 pkg_manifest() {
-    cd ../pkg
+    cd "$pkgfile_pwd/build/pkg"
     find . | sed 's/^\.//' > ../../.manifest
 }
 
