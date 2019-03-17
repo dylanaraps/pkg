@@ -69,6 +69,7 @@ pkg_build() {
     BUILD=$pkgfile_pwd/build/pkg
 
     set -e
+    pkg_config
     build || die "failed to build $name-$version"
     set +e
 
@@ -80,6 +81,15 @@ pkg_build() {
 
     log "successfuly built $name"
     log "package is at $name-$version-$release.tar.gz"
+}
+
+pkg_config() {
+    config_file="${XDG_CONFIG_HOME:-${HOME}/.config}/mkpkg/mkpkg.conf"
+
+    [ -f "$config_file" ] ||
+        return
+
+    . "$config_file" || die "syntax error in config file"
 }
 
 pkg_checksum() {
