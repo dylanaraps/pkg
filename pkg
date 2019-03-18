@@ -197,7 +197,6 @@ args() {
 
         d*) pkg_delete "$2" ;;
         l*) pkg_list ;;
-        u*) pkg_update ;;
         -v) printf '%s\n' "pkg 0.1.0" ;;
 
         *)
