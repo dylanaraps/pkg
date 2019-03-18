@@ -41,7 +41,7 @@ pkg_get() {
 pkg_verify() {
     pkg_checksum build/.checksum
     diff .checksum build/.checksum ||
-        die "checksums of sources do not match checksums of package" \
+        die "checksum of sources does not match checksum of package" \
             "run 'pkg checksum' to update checksums"
 }
 
@@ -107,7 +107,7 @@ pkg_add() {
     [ -w "$PKG_ROOT/" ] || die "may need root permissions"
 
     tar xvf "$1" -C "$PKG_ROOT/" || die "couldn't extract $1"
-    log "successfuly installed ${1%%-*} to $PKG_ROOT/"
+    log "successfuly installed ${1%-*} to $PKG_ROOT/"
 }
 
 pkg_delete() {
@@ -128,6 +128,8 @@ pkg_delete() {
                 rmdir "$line"
         }
     done < "$pkg_db"
+
+    log "removed $1"
 }
 
 pkg_list() {
