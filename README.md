@@ -7,10 +7,7 @@ Package Manager for Kiss Linux
 
 ## TODO
 
-- `mkpkg`
-    - [x] Check checksums
-    - [ ] Check dependencies
-    - [ ] Add config file
-    - [ ] Use `fakeroot`
-    - [x] `-h`
-    - [x] `-v`
+- [ ] Add `update`
+    - [ ] sync repo.
+    - [ ] check for package updates.
+- [ ] Add version checking.
