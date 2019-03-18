@@ -17,8 +17,6 @@ pkgfile_read() {
 
 pkg_get() {
     mkdir -p build || die "couldn't create build dir"
-    # cp ~/build/gcc-8.3.0.tar.xz build/
-    # return
 
     for src in $source; do
         if is_remote "$src"; then
@@ -76,7 +74,7 @@ pkg_build() {
 
     cd "$pkgfile_pwd"
 
-    cp .manifest build/pkg
+    cp .manifest "build/pkg/$name-manifest"
     tar cvf "$name-$version-$release.tar.gz" -C build/pkg . >/dev/null ||
         die "failed to create package"
 

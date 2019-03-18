@@ -3,7 +3,9 @@
 # pm - package manager for kiss linux.
 
 db_update() {
-    :
+    mkdir -p "$ROOT/.metadata/$name"
+    cp "$ROOT/.manifest" "$ROOT/.metadata/$name/.manifest"
+    rm "$ROOT/.manifest"
 }
 
 die() {
@@ -18,9 +20,12 @@ log() {
 main() {
     [ -f "$1" ] || die "file not found $1"
 
-    mkdir -p install
+    name=${1%%-*}
 
-    tar xvf "$1" -C install || die "couldn't extract $1"
+    ROOT=~/.fakeroot
+    mkdir -p "$ROOT"
+
+    tar xvf "$1" -C "$ROOT" || die "couldn't extract $1"
     db_update
 }
 
