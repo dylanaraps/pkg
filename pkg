@@ -1,7 +1,7 @@
 #!/bin/sh
 # shellcheck disable=2086,2154,2123,2034,SC1007 source=/dev/null
 #
-# mkpkg - package builder for kiss linux.
+# pkg - package manager for kiss linux.
 
 pkgfile_read() {
     [ -f pkgfile ] || die "pkgfile not found"
@@ -33,7 +33,7 @@ pkg_verify() {
     pkg_checksum build/.checksum
     diff .checksum build/.checksum ||
         die "checksums of sources do not match checksums of package" \
-            "run 'mkpkg checksum' to update checksums"
+            "run 'pkg checksum' to update checksums"
 }
 
 pkg_manifest() {
@@ -137,7 +137,8 @@ is_remote() {
 }
 
 clean() {
-    [ -d "$og_pwd/build" ] && rm -rf "$og_pwd/build"
+    [ -f "$og_pwd/pkgfile" ] || return
+    [ -d "$og_pwd/build" ] &&   rm -rf "$og_pwd/build"
 }
 
 die() {
@@ -151,14 +152,12 @@ log() {
 
 args() {
     case $1 in
-        a*)
-            pkg_add "$2"
-        ;;
+        a*) pkg_add "$2" ;;
 
         b*)
             pkgfile_read
 
-            [ -f .checksum ] || die "checksums not found, run 'mkpkg checksum'"
+            [ -f .checksum ] || die "checksums not found, run 'pkg checksum'"
 
             pkg_get
             pkg_verify
@@ -173,10 +172,17 @@ args() {
         ;;
 
         d*) pkg_delete "$2" ;;
-        -v) printf '%s\n' "mkpkg 0.1.0" ;;
+        -v) printf '%s\n' "pkg 0.1.0" ;;
 
         *)
-            printf '%s\n' "usage: pkg [[a]dd,[b]uild,[c]hecksum],[d]el,[l]ist]"
+            printf '%s' "\
+usage:
+  - pkg [a]dd pkg.tar.gz
+  - pkg [b]uild
+  - pkg [c]hecksum
+  - pkg [d]el pkg
+  - pkg [l]list
+"
         ;;
     esac
 }
