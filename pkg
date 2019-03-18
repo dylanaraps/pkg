@@ -19,11 +19,18 @@ pkgfile_read() {
 
 pkg_get() {
     mkdir -p build || die "couldn't create build dir"
+    mkdir -p "$PKG_ROOT/$tar_dir" || die "couldn't create cache dir"
 
     for src in $source; do
         if is_remote "$src"; then
+            [ -f "$PKG_ROOT/$tar_dir/${src##*/}" ] && {
+                log "found cached $src"
+                continue
+            }
+
             log "downloading $src"
-            wget -P build -- "$src" || die "failed to download $src"
+            wget -P "$PKG_ROOT/$tar_dir" -- "$src" ||
+                die "failed to download $src"
         else
             [ -f "$src" ] && continue
             die "source file $src not found"
@@ -61,8 +68,10 @@ pkg_extract() {
         case $pkg in
             *.tar|*.tar.gz|*.tar.xz|*.tar.bz2|*.tar.lzma|\
             *.tar.lz|*.txz|*.tgz|*.tbz2|*.zip|*.rpm|*.7z)
-                tar xavf "$pkg_name" -C src --strip-components 1 ||
-                    die "couldn't extract $pkg_name"
+                tar xavf "$PKG_ROOT/$tar_dir/$pkg_name" \
+                    -C src \
+                    --strip-components 1 \
+                || die "couldn't extract $pkg_name"
             ;;
 
             *)  cp -f "../$pkg_name" src ;;
@@ -98,6 +107,7 @@ pkg_add() {
     [ -w "$PKG_ROOT/" ] || die "may need root permissions"
 
     tar xvf "$1" -C "$PKG_ROOT/" || die "couldn't extract $1"
+    log "successfuly installed ${1%%-*} to $PKG_ROOT/"
 }
 
 pkg_delete() {
@@ -134,7 +144,7 @@ pkg_list() {
 pkg_checksum() {
     for src in $source; do
         if is_remote "$src"; then
-            files="$files build/${src##*/}"
+            files="$files $PKG_ROOT/$tar_dir/${src##*/}"
         else
             files="$files $src"
         fi
@@ -204,6 +214,7 @@ usage:
 main() {
     og_pwd=$PWD
     db_dir=var/db/pkg
+    tar_dir=var/cache/pkg
 
     trap clean EXIT INT
     clean
