@@ -82,6 +82,14 @@ pkg_extract() {
 }
 
 pkg_build() {
+    pkgfile_read
+
+    [ -f .checksum ] || die "checksums not found, run 'pkg checksum'"
+
+    pkg_get
+    pkg_verify
+    pkg_extract >/dev/null
+
     cd src >/dev/null || die "can't access src dir."
     BUILD=$og_pwd/build/pkg
 
@@ -101,11 +109,22 @@ pkg_build() {
 }
 
 pkg_add() {
-    [ -f "$1" ] || die "add needs a tarball"
-    [ -z "${1##*.tar.??}" ] || die "argument is not a tarball"
     [ -n "$PKG_ROOT" ] && mkdir -p "$PKG_ROOT"
     [ -w "$PKG_ROOT/" ] || die "may need root permissions"
 
+    [ -f "$1" ] && [ -z "${1##*.tar.??}" ] && {
+        pkg_install "$1"
+        return
+    }
+
+    [ -d "$PKG_ROOT/$sync_dir/pkgfiles" ] || pkg_update
+
+    cd "$(find "$PKG_ROOT/$sync_dir/pkgfiles" -name "$1" -type d)" ||
+        die "$1 not in repositories"
+    pkg b
+}
+
+pkg_install() {
     tar xvf "$1" -C "$PKG_ROOT/" || die "couldn't extract $1"
     log "successfuly installed ${1%-*} to $PKG_ROOT/"
 }
@@ -152,7 +171,8 @@ pkg_checksum() {
         fi
     done
 
-    sha256sum -- $files > "$1" || die "failed to generate checksums"
+    sha256sum -- $files | sed "s|$PKG_ROOT||g" > "$1" ||
+        die "failed to generate checksums"
     log "Saved checksum to $1"
 }
 
@@ -190,17 +210,7 @@ log() {
 args() {
     case $1 in
         a*) pkg_add "$2" ;;
-
-        b*)
-            pkgfile_read
-
-            [ -f .checksum ] || die "checksums not found, run 'pkg checksum'"
-
-            pkg_get
-            pkg_verify
-            pkg_extract >/dev/null
-            pkg_build
-        ;;
+        b*) pkg_build ;;
 
         c*)
             pkgfile_read
