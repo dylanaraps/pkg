@@ -120,6 +120,14 @@ pkg_delete() {
     done < "$pkg_db"
 }
 
+pkg_list() {
+    cd "$ROOT/var/db/pm" || die "can't access database"
+
+    for file in *-manifest; do
+        [ -f "$file" ] && printf '%s\n' "${file%-manifest}"
+    done
+}
+
 pkg_checksum() {
     for src in $source; do
         if is_remote "$src"; then
@@ -174,6 +182,7 @@ args() {
         ;;
 
         d*) pkg_delete "$2" ;;
+        l*) pkg_list ;;
         -v) printf '%s\n' "pkg 0.1.0" ;;
 
         *)
