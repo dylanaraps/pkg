@@ -43,7 +43,7 @@ pkg_manifest() {
 
 pkg_extract() {
     cd build || die "can't access build dir"
-    mkdir -p src pkg
+    mkdir -p src pkg/var/db/pm
 
     for pkg in $source; do
         pkg_name=${pkg##*/}
@@ -74,7 +74,7 @@ pkg_build() {
 
     cd "$pkgfile_pwd"
 
-    cp .manifest "build/pkg/$name-manifest"
+    cp .manifest "build/pkg/var/db/pm/$name-manifest"
     tar cvf "$name-$version-$release.tar.gz" -C build/pkg . >/dev/null ||
         die "failed to create package"
 
