@@ -40,7 +40,7 @@ pkg_verify() {
 
 pkg_manifest() {
     cd "$pkgfile_pwd/build/pkg"
-    find . | sed 's/^\.//' > ../../.manifest
+    find . -mindepth 1 | sed 's/^\.//' > ../../.manifest
 }
 
 pkg_extract() {
@@ -75,6 +75,8 @@ pkg_build() {
     pkg_manifest
 
     cd "$pkgfile_pwd"
+
+    cp .manifest build/pkg
     tar cvf "$name-$version-$release.tar.gz" -C build/pkg . >/dev/null ||
         die "failed to create package"
 
