@@ -121,7 +121,9 @@ pkg_add() {
 
     cd "$(find "$PKG_ROOT/$sync_dir/pkgfiles" -name "$1" -type d)" ||
         die "$1 not in repositories"
-    pkg b
+
+    pkg_build
+    pkg_install "$name-$version-$release.tar.gz"
 }
 
 pkg_install() {
@@ -195,7 +197,7 @@ is_remote() {
 
 clean() {
     [ -z "$pkgfile" ] && return
-    [ -d "$og_pwd/build" ] &&   rm -rf "$og_pwd/build"
+    [ -f "$og_pwd/build/.manifest" ] && rm -rf "$og_pwd/build"
 }
 
 die() {
