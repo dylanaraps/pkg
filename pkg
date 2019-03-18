@@ -13,6 +13,8 @@ pkgfile_read() {
     [ -z "$release" ] && die "release not defined in pkgfile"
 
     PATH= type build >/dev/null || die "build() not found in pkgfile."
+
+    pkgfile=1
 }
 
 pkg_get() {
@@ -137,7 +139,7 @@ is_remote() {
 }
 
 clean() {
-    [ -f "$og_pwd/pkgfile" ] || return
+    [ -z "$pkgfile" ] && return
     [ -d "$og_pwd/build" ] &&   rm -rf "$og_pwd/build"
 }
 
