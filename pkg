@@ -109,24 +109,11 @@ pkg_build() {
 }
 
 pkg_add() {
+    [ -f "$1" ] || die "file not found"
+    [ -z "${1##*.tar.??}" ] || die "add requires a tarball"
     [ -n "$PKG_ROOT" ] && mkdir -p "$PKG_ROOT"
     [ -w "$PKG_ROOT/" ] || die "may need root permissions"
 
-    [ -f "$1" ] && [ -z "${1##*.tar.??}" ] && {
-        pkg_install "$1"
-        return
-    }
-
-    [ -d "$PKG_ROOT/$sync_dir/pkgfiles" ] || pkg_update
-
-    cd "$(find "$PKG_ROOT/$sync_dir/pkgfiles" -name "$1" -type d)" ||
-        die "$1 not in repositories"
-
-    pkg_build
-    pkg_install "$name-$version-$release.tar.gz"
-}
-
-pkg_install() {
     tar xvf "$1" -C "$PKG_ROOT/" || die "couldn't extract $1"
     log "successfuly installed ${1%-*} to $PKG_ROOT/"
 }
@@ -176,18 +163,6 @@ pkg_checksum() {
     sha256sum -- $files | sed "s|$PKG_ROOT||g" > "$1" ||
         die "failed to generate checksums"
     log "Saved checksum to $1"
-}
-
-pkg_update() {
-    mkdir -p "$PKG_ROOT/$sync_dir" || die "couldn't create sync dir"
-    cd "$PKG_ROOT/$sync_dir"
-
-    if [ -d "$PKG_ROOT/$sync_dir/pkgfiles" ]; then
-        cd ./pkgfiles
-        git pull
-    else
-        git clone --depth 1 https://github.com/kissx/kiss.git pkgfiles
-    fi
 }
 
 is_remote() {
@@ -242,7 +217,6 @@ main() {
     og_pwd=$PWD
     db_dir=var/db/pkg
     tar_dir=var/cache/pkg
-    sync_dir=usr
 
     trap clean EXIT INT
     clean
