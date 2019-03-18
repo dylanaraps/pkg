@@ -41,17 +41,19 @@ pkg_verify() {
 pkg_manifest() {
     cd "$og_pwd/build/pkg"
 
+    printf '%s\n' "$version" > "var/db/pkg/$name/version"
+
     _() { find . -mindepth 1 -type "$1" | sed 's/^\.//'; }
     _ f > ../../.manifest
 
-    printf '%s\n' "/var/db/pkg/$name-manifest" >> ../../.manifest
+    printf '%s\n' "/var/db/pkg/$name/manifest" >> ../../.manifest
 
     _ d | sort -r >> ../../.manifest
 }
 
 pkg_extract() {
     cd build || die "can't access build dir"
-    mkdir -p src pkg/var/db/pkg
+    mkdir -p src "pkg/var/db/pkg/$name"
 
     for pkg in $source; do
         pkg_name=${pkg##*/}
@@ -79,10 +81,9 @@ pkg_build() {
     set +e
 
     pkg_manifest
-
     cd "$og_pwd"
 
-    cp .manifest "build/pkg/var/db/pkg/$name-manifest"
+    cp .manifest "build/pkg/var/db/pkg/$name/manifest"
     tar cvf "$name-$version-$release.tar.gz" -C build/pkg . >/dev/null ||
         die "failed to create package"
 
@@ -101,7 +102,7 @@ pkg_add() {
 }
 
 pkg_delete() {
-    pkg_db="$ROOT/var/db/pkg/$1-manifest"
+    pkg_db="$ROOT/var/db/pkg/$1/manifest"
 
     [ -z "$1" ] &&      die "delete needs an argument"
     [ -f "$pkg_db" ] || die "package not installed"
@@ -123,8 +124,11 @@ pkg_delete() {
 pkg_list() {
     cd "$ROOT/var/db/pkg" || die "can't access database"
 
-    for file in *-manifest; do
-        [ -f "$file" ] && printf '%s\n' "${file%-manifest}"
+    for pkg in *; do
+        [ -f "$pkg/version" ] || continue
+
+        read -r version < "$pkg/version"
+        printf '%s\n' "$pkg $version"
     done
 }
 
