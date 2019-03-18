@@ -41,19 +41,19 @@ pkg_verify() {
 pkg_manifest() {
     cd "$og_pwd/build/pkg"
 
-    printf '%s\n' "$version" > "var/db/pkg/$name/version"
+    printf '%s\n' "$version" > "$db_dir/$name/version"
 
     _() { find . -mindepth 1 -type "$1" | sed 's/^\.//'; }
     _ f > ../../.manifest
 
-    printf '%s\n' "/var/db/pkg/$name/manifest" >> ../../.manifest
+    printf '%s\n' "/$db_dir/$name/manifest" >> ../../.manifest
 
     _ d | sort -r >> ../../.manifest
 }
 
 pkg_extract() {
     cd build || die "can't access build dir"
-    mkdir -p src "pkg/var/db/pkg/$name"
+    mkdir -p src "pkg/$db_dir/$name"
 
     for pkg in $source; do
         pkg_name=${pkg##*/}
@@ -83,7 +83,7 @@ pkg_build() {
     pkg_manifest
     cd "$og_pwd"
 
-    cp .manifest "build/pkg/var/db/pkg/$name/manifest"
+    cp .manifest "build/pkg/$db_dir/$name/manifest"
     tar cvf "$name-$version-$release.tar.gz" -C build/pkg . >/dev/null ||
         die "failed to create package"
 
@@ -94,22 +94,19 @@ pkg_build() {
 pkg_add() {
     [ -f "$1" ] || die "add needs a tarball"
     [ -z "${1##*.tar.??}" ] || die "argument is not a tarball"
+    [ -n "$PKG_ROOT" ] && mkdir -p "$PKG_ROOT"
 
-    # Temporary.
-    mkdir -p "$ROOT"
-
-    tar xvf "$1" -C "$ROOT" || die "couldn't extract $1"
+    tar xvf "$1" -C "$PKG_ROOT/" || die "couldn't extract $1"
 }
 
 pkg_delete() {
-    pkg_db="$ROOT/var/db/pkg/$1/manifest"
+    pkg_db="$PKG_ROOT/$db_dir/$1/manifest"
 
     [ -z "$1" ] &&      die "delete needs an argument"
     [ -f "$pkg_db" ] || die "package not installed"
 
     while read -r line; do
-        # Temporary
-        line=$ROOT/$line
+        line=$PKG_ROOT/$line
 
         [ -f "$line" ] && rm "$line"
 
@@ -122,7 +119,7 @@ pkg_delete() {
 }
 
 pkg_list() {
-    cd "$ROOT/var/db/pkg" || die "can't access database"
+    cd "$PKG_ROOT/$db_dir" || die "can't access database"
 
     for pkg in *; do
         [ -f "$pkg/version" ] || continue
@@ -204,9 +201,7 @@ usage:
 
 main() {
     og_pwd=$PWD
-
-    # Temporary.
-    ROOT=~/.fakeroot
+    db_dir=var/db/pkg
 
     trap clean EXIT INT
     clean
