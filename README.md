@@ -7,7 +7,4 @@ Package Manager for Kiss Linux
 
 ## TODO
 
-- [ ] Add `update`
-    - [ ] sync repo.
-    - [ ] check for package updates.
 - [ ] Add version checking.
