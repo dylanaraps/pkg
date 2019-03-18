@@ -14,7 +14,19 @@ pkgfile_read() {
 
     PATH= type build >/dev/null || die "build() not found in pkgfile."
 
+    pkg_deps
+
     pkgfile=1
+}
+
+pkg_deps() {
+    for dep in $depends; do
+        pkg_list | grep -qFw "$dep" || {
+            log "missing dependency: $dep"
+            missing=1
+        }
+    done
+    [ -n "$missing" ] && die "missing dependencies"
 }
 
 pkg_get() {
