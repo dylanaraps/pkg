@@ -156,6 +156,18 @@ pkg_checksum() {
     log "Saved checksum to $1"
 }
 
+pkg_update() {
+    mkdir -p "$PKG_ROOT/$sync_dir" || die "couldn't create sync dir"
+    cd "$PKG_ROOT/$sync_dir"
+
+    if [ -d "$PKG_ROOT/$sync_dir/pkgfiles" ]; then
+        cd ./pkgfiles
+        git pull
+    else
+        git clone --depth 1 https://github.com/kissx/kiss.git pkgfiles
+    fi
+}
+
 is_remote() {
     [ -z "${src##*://*}" ] && return 0
     return 1
@@ -198,6 +210,7 @@ args() {
 
         d*) pkg_delete "$2" ;;
         l*) pkg_list ;;
+        u*) pkg_update ;;
         -v) printf '%s\n' "pkg 0.1.0" ;;
 
         *)
@@ -217,6 +230,7 @@ main() {
     og_pwd=$PWD
     db_dir=var/db/pkg
     tar_dir=var/cache/pkg
+    sync_dir=usr
 
     trap clean EXIT INT
     clean
