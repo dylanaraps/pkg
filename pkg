@@ -103,20 +103,23 @@ pkg_build() {
     cd "$og_pwd"
 
     cp .manifest "build/pkg/$db_dir/$name/manifest"
-    tar pcvf "$name-$version-$release.tar.gz" \
+    tar pcvf "${name}_$version-$release.tar.gz" \
         -C build/pkg . >/dev/null || die "failed to create package"
 
     log "successfuly built $name"
-    log "package is at $name-$version-$release.tar.gz"
+    log "package is at ${name}_$version-$release.tar.gz"
 }
 
 pkg_add() {
+    name=${1%_*.tar.gz*}
+
     [ -f "$1" ] || die "file not found"
     [ -z "${1##*.tar.??}" ] || die "add requires a tarball"
     [ -n "$PKG_ROOT" ] && mkdir -p "$PKG_ROOT"
+    [ -f "$PKG_ROOT/$db_dir/$name/manifest" ] && pkg_delete "$name"
 
-    tar pxvf "$1" -C "$PKG_ROOT/" || die "couldn't extract $1"
-    log "successfuly installed $1 to $PKG_ROOT/"
+    tar pxvf "$1" -C "$PKG_ROOT/" || die "couldn't extract $name"
+    log "successfuly installed $name to $PKG_ROOT/"
 }
 
 pkg_delete() {
@@ -133,8 +136,7 @@ pkg_delete() {
 
         # Only delete empty directories.
         [ -d "$line" ] && {
-            find "$line" -mindepth 1 | read -r ||
-                rmdir "$line"
+            find "$line" -mindepth 1 | read -r || rmdir "$line"
         }
     done < "$pkg_db"
 
