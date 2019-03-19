@@ -56,7 +56,7 @@ pkg_verify() {
 }
 
 pkg_manifest() {
-    cd "$og_pwd/build/pkg"
+    cd "$og_pwd/build/pkg" >/dev/null
 
     printf '%s\n' "$version" > "$db_dir/$name/version"
 
@@ -69,7 +69,7 @@ pkg_manifest() {
 }
 
 pkg_extract() {
-    cd build || die "can't access build dir"
+    cd build >/dev/null || die "can't access build dir"
     mkdir -p src "pkg/$db_dir/$name"
 
     for pkg in $source; do
@@ -77,17 +77,21 @@ pkg_extract() {
 
         case $pkg in
             *.tar|*.tar.gz|*.tar.xz|*.tar.bz2|*.tar.lzma|\
-            *.tar.lz|*.txz|*.tgz|*.tbz2|*.zip|*.rpm|*.7z)
-                tar xavf "$PKG_ROOT/$tar_dir/$name/$file_name" \
-                    -C src \
-                    --strip-components 1 \
-                || die "couldn't extract $file_name"
+            *.tar.lz|*.txz|*.tgz|*.tbz2)
+                tar xaf "$PKG_ROOT/$tar_dir/$name/$file_name" \
+                    -C src --strip-components 1
+            ;;
+
+            *.zip)
+                log "warn: You may need to cd into zip directory."
+                unzip -qd src "$PKG_ROOT/$tar_dir/$name/$file_name"
             ;;
 
             *)  cp -f "../$file_name" src ;;
         esac
     done
 
+    [ "$?" != 0 ] && die "couldn't extract $file_name"
     _(){ [ "$1" = "src/*" ] && die "no source files found";}; _ src/*
 }
 
@@ -100,7 +104,7 @@ pkg_build() {
     set +e
 
     pkg_manifest
-    cd "$og_pwd"
+    cd "$og_pwd" >/dev/null
 
     cp .manifest "build/pkg/$db_dir/$name/manifest"
     tar pcvf "${name}_$version-$release.tar.gz" \
@@ -144,7 +148,7 @@ pkg_delete() {
 }
 
 pkg_list() {
-    cd "$PKG_ROOT/$db_dir" || die "can't access database"
+    cd "$PKG_ROOT/$db_dir" >/dev/null || die "can't access database"
 
     for pkg in *; do
         [ -f "$pkg/version" ] || continue
@@ -201,7 +205,7 @@ args() {
 
             pkg_get
             pkg_verify
-            pkg_extract >/dev/null
+            pkg_extract
             pkg_build
         ;;
 
