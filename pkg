@@ -147,14 +147,16 @@ pkg_delete() {
 pkg_list() {
     cd "$PKG_ROOT/$db_dir" >/dev/null || die "can't access database"
 
-    for pkg in "$1"*; do
-        [ -f "$pkg/version" ] || return 1
+    _() { read -r v < "$1/version"; printf '%s\n' "$1 $v"; }
+    [ -n "$1" ] && ! [ -f "$1/version" ] && return 1
 
-        read -r version < "$pkg/version"
-        printf '%s\n' "$pkg $version"
+    for pkg in *; do
+        [ -f "$1/version" ] && { _ "$1"; break; }
+        [ -f "$pkg/version" ] || return 1
+        _ "$pkg"
     done
 
-    cd "$OLDPWD" >/dev/null
+    cd - >/dev/null
 }
 
 pkg_checksum() {
