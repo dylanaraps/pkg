@@ -129,7 +129,6 @@ pkg_delete() {
 
     [ -z "$1" ] && die "delete needs an argument"
     [ -f "$pkg_db" ] || die "package not installed"
-    [ -w "$PKG_ROOT/" ] || die "may need root permissions"
 
     while read -r line; do
         line=$PKG_ROOT/$line
