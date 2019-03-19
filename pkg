@@ -47,6 +47,7 @@ pkg_get() {
 
 pkg_verify() {
     pkg_checksum build/.checksum
+
     diff .checksum build/.checksum ||
         die "checksum of sources does not match checksum of package" \
             "run 'pkg checksum' to update checksums"
@@ -133,12 +134,11 @@ pkg_delete() {
     while read -r line; do
         line=$PKG_ROOT/$line
 
-        [ -f "$line" ] && rm "$line"
-
-        # Only delete empty directories.
-        [ -d "$line" ] && {
+        if [ -d "$line" ]; then
             find "$line" -mindepth 1 | read -r || rmdir "$line"
-        }
+        else
+            rm -- "$line"
+        fi
     done < "$pkg_db"
 
     log "removed $1"
