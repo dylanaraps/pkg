@@ -92,14 +92,6 @@ pkg_extract() {
 }
 
 pkg_build() {
-    pkgfile_read
-
-    [ -f .checksum ] || die "checksums not found, run 'pkg checksum'"
-
-    pkg_get
-    pkg_verify
-    pkg_extract >/dev/null
-
     cd src >/dev/null || die "can't access src dir."
     BUILD=$og_pwd/build/pkg
 
@@ -198,7 +190,17 @@ log() {
 args() {
     case $1 in
         a*) pkg_add "$2" ;;
-        b*) pkg_build ;;
+
+        b*)
+            pkgfile_read
+
+            [ -f .checksum ] || die "checksums not found, run 'pkg checksum'"
+
+            pkg_get
+            pkg_verify
+            pkg_extract >/dev/null
+            pkg_build
+        ;;
 
         c*)
             pkgfile_read
