@@ -227,7 +227,7 @@ usage:
   - pkg [b]uild
   - pkg [c]hecksum
   - pkg [d]el pkg
-  - pkg [l]list
+  - pkg [l]ist
 "
         ;;
     esac
