@@ -178,7 +178,7 @@ is_remote() {
 }
 
 clean() {
-    [ "$pkgfile" = 1 ] && return
+    [ "$pkgfile" = 1 ] || return
     [ -f "$og_pwd/pkgfile" ] || return
     rm -rf "$og_pwd/build"
 }
