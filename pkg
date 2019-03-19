@@ -125,7 +125,7 @@ pkg_add() {
     [ -w "$PKG_ROOT/" ] || die "may need root permissions"
 
     tar xvf "$1" -C "$PKG_ROOT/" || die "couldn't extract $1"
-    log "successfuly installed ${1%-*} to $PKG_ROOT/"
+    log "successfuly installed $1 to $PKG_ROOT/"
 }
 
 pkg_delete() {
@@ -182,7 +182,8 @@ is_remote() {
 
 clean() {
     [ -z "$pkgfile" ] && return
-    [ -f "$og_pwd/build/.manifest" ] && rm -rf "$og_pwd/build"
+    [ -f pkgfile ] || return
+    [ -d "$og_pwd/build" ] && rm -rf "$og_pwd/build"
 }
 
 die() {
