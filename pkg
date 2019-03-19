@@ -124,6 +124,8 @@ pkg_add() {
 
     tar pxvf "$1" -C "$PKG_ROOT/" || die "couldn't extract $name"
     log "successfuly installed $name to $PKG_ROOT/"
+
+    [ -f post-install ] && sh post-install
 }
 
 pkg_delete() {
