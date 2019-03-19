@@ -19,7 +19,7 @@ pkgfile_read() {
 
 pkg_deps() {
     for dep in $depends; do
-        pkg_list "$dep" || miss="$miss, $dep"
+        pkg_list "$dep" >/dev/null || miss="$miss, $dep"
     done
     [ -n "$miss" ] && die "missing dependencies:${miss:1}"
 }
