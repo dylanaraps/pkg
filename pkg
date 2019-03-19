@@ -60,12 +60,12 @@ pkg_manifest() {
 
     printf '%s\n' "$version" > "$db_dir/$name/version"
 
-    _() { find . -mindepth 1 -type "$1" | sed 's/^\.//'; }
-    _ f > ../../.manifest
+    _() { find . -mindepth 1 "$@" | sed 's/^\.//'; }
+    _ -not -type d  > ../../.manifest
 
     printf '%s\n' "/$db_dir/$name/manifest" >> ../../.manifest
 
-    _ d | sort -r >> ../../.manifest
+    _ -type d | sort -r >> ../../.manifest
 }
 
 pkg_extract() {
@@ -181,9 +181,9 @@ is_remote() {
 }
 
 clean() {
-    [ -z "$pkgfile" ] && return
-    [ -f pkgfile ] || return
-    [ -d "$og_pwd/build" ] && rm -rf "$og_pwd/build"
+    [ "$pkgfile" = 1 ] && return
+    [ -f "$og_pwd/pkgfile" ] || return
+    rm -rf "$og_pwd/build"
 }
 
 die() {
