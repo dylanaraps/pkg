@@ -5,6 +5,20 @@
 Package Manager for KISS Linux
 
 
-## TODO
+# usage
 
-- [ ] Add version checking.
+```
+- pkg [a]dd pkg.tar.gz
+- pkg [b]uild
+- pkg [c]hecksum
+- pkg [d]el pkg
+- pkg [l]list
+```
+
+# workflow
+
+1. `git clone https://github.com/kissx/kiss`
+   - Install packages from here.
+   - `git pull` to receive updates.
+   - Send pull requests with new `pkgfiles`.
+   - Create and use multiple branches.
