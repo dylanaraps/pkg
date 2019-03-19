@@ -78,7 +78,7 @@ pkg_extract() {
         case $pkg in
             *.tar|*.tar.gz|*.tar.xz|*.tar.bz2|*.tar.lzma|\
             *.tar.lz|*.txz|*.tgz|*.tbz2|*.zip|*.rpm|*.7z)
-                tar pxavf "$PKG_ROOT/$tar_dir/$pkg_name" \
+                tar xavf "$PKG_ROOT/$tar_dir/$pkg_name" \
                     -C src \
                     --strip-components 1 \
                 || die "couldn't extract $pkg_name"
@@ -103,8 +103,8 @@ pkg_build() {
     cd "$og_pwd"
 
     cp .manifest "build/pkg/$db_dir/$name/manifest"
-    tar cvf "$name-$version-$release.tar.gz" -C build/pkg . >/dev/null ||
-        die "failed to create package"
+    tar pcvf "$name-$version-$release.tar.gz" \
+        -C build/pkg . >/dev/null || die "failed to create package"
 
     log "successfuly built $name"
     log "package is at $name-$version-$release.tar.gz"
@@ -115,7 +115,7 @@ pkg_add() {
     [ -z "${1##*.tar.??}" ] || die "add requires a tarball"
     [ -n "$PKG_ROOT" ] && mkdir -p "$PKG_ROOT"
 
-    tar pxvf "$1" --same-owner -C "$PKG_ROOT/" || die "couldn't extract $1"
+    tar pxvf "$1" -C "$PKG_ROOT/" || die "couldn't extract $1"
     log "successfuly installed $1 to $PKG_ROOT/"
 }
 
