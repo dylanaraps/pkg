@@ -77,7 +77,7 @@ pkg_extract() {
         case $pkg in
             *.tar|*.tar.gz|*.tar.xz|*.tar.bz2|*.tar.lzma|\
             *.tar.lz|*.txz|*.tgz|*.tbz2)
-                tar xaf "$PKG_ROOT/$tar_dir/$name/$file_name" \
+                tar xf "$PKG_ROOT/$tar_dir/$name/$file_name" \
                     -C src --strip-components 1 ||
                     die "couldn't extract $file_name"
             ;;
