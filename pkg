@@ -169,7 +169,7 @@ pkg_checksum() {
         fi
     done
 
-    sha256sum -- $files | sed "s|${PKG_ROOT:-/}||" > "$1" ||
+    sha256sum -- $files | sed "s|^${PKG_ROOT:-///}||" > "$1" ||
         die "failed to generate checksums"
     log "Saved checksum to $1"
 }
