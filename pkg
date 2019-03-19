@@ -78,7 +78,7 @@ pkg_extract() {
         case $pkg in
             *.tar|*.tar.gz|*.tar.xz|*.tar.bz2|*.tar.lzma|\
             *.tar.lz|*.txz|*.tgz|*.tbz2|*.zip|*.rpm|*.7z)
-                tar xavf "$PKG_ROOT/$tar_dir/$pkg_name" \
+                tar pxavf "$PKG_ROOT/$tar_dir/$pkg_name" \
                     -C src \
                     --strip-components 1 \
                 || die "couldn't extract $pkg_name"
@@ -114,9 +114,8 @@ pkg_add() {
     [ -f "$1" ] || die "file not found"
     [ -z "${1##*.tar.??}" ] || die "add requires a tarball"
     [ -n "$PKG_ROOT" ] && mkdir -p "$PKG_ROOT"
-    [ -w "$PKG_ROOT/" ] || die "may need root permissions"
 
-    tar xvf "$1" -C "$PKG_ROOT/" || die "couldn't extract $1"
+    tar pxvf "$1" --same-owner -C "$PKG_ROOT/" || die "couldn't extract $1"
     log "successfuly installed $1 to $PKG_ROOT/"
 }
 
@@ -162,7 +161,7 @@ pkg_checksum() {
         fi
     done
 
-    sha256sum -- $files | sed "s|$PKG_ROOT||g" > "$1" ||
+    sha256sum -- $files | sed "s|${PKG_ROOT:-/}||" > "$1" ||
         die "failed to generate checksums"
     log "Saved checksum to $1"
 }
@@ -188,13 +187,15 @@ log() {
 }
 
 args() {
+    [ -z "$in_fakeroot" ] && in_fakeroot=1 exec fakeroot -- pkg "$@"
+
     case $1 in
         a*) pkg_add "$2" ;;
 
         b*)
             pkgfile_read
 
-            [ -f .checksum ] || die "checksums not found, run 'pkg checksum'"
+            [ -f .checksum ] || die "checksum not found, run 'pkg checksum'"
 
             pkg_get
             pkg_verify
@@ -212,8 +213,7 @@ args() {
         l*) pkg_list ;;
         -v) printf '%s\n' "pkg 0.1.0" ;;
 
-        *)
-            printf '%s' "\
+        *)  printf '%s' "\
 usage:
   - pkg [a]dd pkg.tar.gz
   - pkg [b]uild
@@ -236,4 +236,4 @@ main() {
     args "$@"
 }
 
-[ -z "${0##*pkg}" ] && main "$@"
+main "$@"
