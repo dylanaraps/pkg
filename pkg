@@ -19,9 +19,10 @@ pkgfile_read() {
 
 pkg_deps() {
     for dep in $depends; do
-        pkg_list "$dep" >/dev/null || miss="$miss, $dep"
+        pkg_list "$dep" >/dev/null || miss="$miss $dep"
     done
-    [ -n "$miss" ] && die "missing dependencies:${miss:1}"
+
+    [ -n "$miss" ] && die "missing dependencies:$miss"
 }
 
 pkg_get() {
@@ -77,19 +78,20 @@ pkg_extract() {
             *.tar|*.tar.gz|*.tar.xz|*.tar.bz2|*.tar.lzma|\
             *.tar.lz|*.txz|*.tgz|*.tbz2)
                 tar xaf "$PKG_ROOT/$tar_dir/$name/$file_name" \
-                    -C src --strip-components 1
+                    -C src --strip-components 1 ||
+                    die "couldn't extract $file_name"
             ;;
 
             *.zip)
                 log "warn: You may need to cd into zip directory."
-                unzip -qd src "$PKG_ROOT/$tar_dir/$name/$file_name"
+                unzip -qd src "$PKG_ROOT/$tar_dir/$name/$file_name" ||
+                    die "couldn't extract $file_name"
             ;;
 
             *)  cp -f "../$file_name" src ;;
         esac
     done
 
-    [ "$?" != 0 ] && die "couldn't extract $file_name"
     _(){ [ "$1" = "src/*" ] && die "no source files found";}; _ src/*
 }
 
