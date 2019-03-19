@@ -6,7 +6,7 @@
 pkgfile_read() {
     [ -f pkgfile ] || die "pkgfile not found"
 
-    . pkgfile || die "syntax error in pkgfile"
+    . ./pkgfile || die "syntax error in pkgfile"
 
     [ -z "$name" ] &&    die "name not defined in pkgfile"
     [ -z "$version" ] && die "version not defined in pkgfile"
