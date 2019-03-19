@@ -156,6 +156,8 @@ pkg_list() {
         read -r version < "$pkg/version"
         printf '%s\n' "$pkg $version"
     done
+
+    cd "$OLDPWD" >/dev/null
 }
 
 pkg_checksum() {
@@ -232,6 +234,8 @@ usage:
 }
 
 main() {
+    type fakeroot >/dev/null || die "fakeroot not installed"
+
     og_pwd=$PWD
     db_dir=var/db/pkg
     tar_dir=var/cache/pkg
