@@ -143,7 +143,7 @@ pkg_delete() {
 
         elif [ -e "$line" ]; then
             rm -- "$line" || die "failed to remove package." \
-                                 "check the manifest ($PKGROOT/var/db/pkg/$1)"
+                                 "check the manifest ($PKG_ROOT/var/db/pkg/$1)"
         fi
     done < "$pkg_db"
 
