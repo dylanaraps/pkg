@@ -26,19 +26,18 @@ pkg_deps() {
 }
 
 pkg_get() {
-    mkdir -p build || die "couldn't create build dir"
-    mkdir -p "$PKG_ROOT/$tar_dir/$name" || die "couldn't create cache dir"
+    tar_cache=$PKG_ROOT/$tar_dir/$name
+    mkdir -p build "$tar_cache" || die "couldn't create dirs"
 
     for src in $source; do
         if is_remote "$src"; then
-            [ -f "$PKG_ROOT/$tar_dir/$name/${src##*/}" ] && {
+            [ -f "$tar_cache/${src##*/}" ] && {
                 log "found cached $src"
                 continue
             }
 
             log "downloading $src"
-            wget -P "$PKG_ROOT/$tar_dir/$name" -- "$src" ||
-                die "failed to download $src"
+            wget -P "$tar_cache" -- "$src" || die "failed to download $src"
         else
             [ -f "$src" ] && continue
             die "source file $src not found"
@@ -75,8 +74,7 @@ pkg_extract() {
         file_name=${pkg##*/}
 
         case $pkg in
-            *.tar|*.tar.gz|*.tar.xz|*.tar.bz2|*.tar.lzma|\
-            *.tar.lz|*.txz|*.tgz|*.tbz2)
+            *.tar|*.tar.??|*.tar.???|*.tar.????)
                 tar xf "$PKG_ROOT/$tar_dir/$name/$file_name" \
                     -C src --strip-components 1 ||
                     die "couldn't extract $file_name"
