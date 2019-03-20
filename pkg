@@ -1,5 +1,5 @@
 #!/bin/sh
-# shellcheck disable=2086,2154,2123,2034,1007 source=/dev/null
+# shellcheck disable=2154,2123,2034,1007 source=/dev/null
 #
 # pkg - package manager for kiss linux.
 
@@ -26,11 +26,19 @@ pkg_get() {
     mkdir -p build || die "couldn't create build dir"
 
     for src in $source; do
-        [ -f "${src##*/}" ] && continue
+        src_name=${src##*/}
+
+        [ -f "$src_name" ] && continue
 
         if is_remote "$src"; then
             log "downloading $src"
-            wget -- "$src" || die "failed to download $src"
+
+            if wget -O "$src_name.partial" -- "$src"; then
+                mv -f "$src_name.partial" "$src_name"
+            else
+                rm -f "$src_name.partial"
+                die "failed to download $src"
+            fi
         else
             die "source file $src not found"
         fi
@@ -158,12 +166,13 @@ pkg_list() {
 }
 
 pkg_checksum() {
+    :> "$1"
+
     for src in $source; do
-        files="$files ${src##*/}"
+        sha256sum -- "${src##*/}" >> "$1" || die "failed to generate checksums"
     done
 
-    sha256sum -- $files > "$1" || die "failed to generate checksums"
-    log "Saved checksum to $1"
+    log "Saved checksums to $1"
 }
 
 is_remote() {
@@ -173,6 +182,7 @@ is_remote() {
 clean() {
     [ "$pkgfile" = 1 ] || return
     [ -f "$og_pwd/pkgfile" ] || return
+
     rm -rf "$og_pwd/build"
 }
 
