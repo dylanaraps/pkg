@@ -12,6 +12,6 @@ install:
   - shellcheck() { "shellcheck-${scversion}/shellcheck" "$@"; }
 
 script:
-    - shellcheck pkg
+    - shellcheck -e 2086 -e 2154 -e 2123 -e 2034 -e 1007 pkg
     # Check for lines longer than 80 chars.
     - if grep '.\{81\}' pkg; then (exit 1); else (exit 0); fi
