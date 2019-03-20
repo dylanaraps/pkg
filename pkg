@@ -1,5 +1,5 @@
 #!/bin/sh
-# shellcheck disable=2086,2154,2123,2034,SC1007 source=/dev/null
+# shellcheck disable=2086,2154,2123,2034,1007 source=/dev/null
 #
 # pkg - package manager for kiss linux.
 
