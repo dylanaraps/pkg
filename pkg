@@ -43,24 +43,6 @@ pkg_verify() {
     diff .checksum build/.checksum ||
         die "checksum of sources does not match checksum of package" \
             "run 'pkg checksum' to update checksums"
-
-    type signify >/dev/null || {
-        log "WARNING: signify not found"
-        log "WARNING: signature checking disabled"
-        return
-    }
-
-    [ -f .signature ] && {
-        printf '%s\n%s\n' \
-               "untrusted comment: KISS public key" \
-               "RWRQRltQ0dAMYCAYfTCRyq1eb+da5qGa7HTL8cml9qLOcbfuuvFQcX+7" \
-        > kiss-signature
-
-        signify -C  -p kiss-signature -x .signature ||
-            die "failed to verify signature"
-
-        log "verified signatures"
-    }
 }
 
 pkg_manifest() {
@@ -198,7 +180,6 @@ clean() {
     [ "$pkgfile" = 1 ] || return
     [ -f "$og_pwd/pkgfile" ] || return
     rm -rf "$og_pwd/build"
-    rm kiss-signature 2>/dev/null
 }
 
 die() {
