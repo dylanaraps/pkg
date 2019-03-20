@@ -123,7 +123,10 @@ pkg_add() {
     tar pxvf "$1" -C "$PKG_ROOT/" || die "couldn't extract $name"
     log "successfuly installed $name to $PKG_ROOT/"
 
-    [ -f post-install ] && sh post-install
+    [ -f post-install ] && {
+        log "running post install hook"
+        sh post-install
+    }
 }
 
 pkg_delete() {
@@ -137,8 +140,10 @@ pkg_delete() {
 
         if [ -d "$line" ]; then
             find "$line" -mindepth 1 | read -r || rmdir "$line"
-        else
-            rm -- "$line"
+
+        elif [ -e "$line" ]; then
+            rm -- "$line" || die "failed to remove package." \
+                                 "check the manifest ($PKGROOT/var/db/pkg/$1)"
         fi
     done < "$pkg_db"
 
