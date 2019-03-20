@@ -239,7 +239,7 @@ main() {
     db_dir=var/db/pkg
     tar_dir=var/cache/pkg
 
-    trap clean EXIT INT
+    trap clean EXIT
     clean
 
     args "$@"
