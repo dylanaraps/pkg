@@ -99,9 +99,9 @@ pkg_build() {
     cd src >/dev/null || die "can't access src dir."
     BUILD=$og_pwd/build/pkg
 
-    set -e
-    build || die "failed to build $name-$version"
-    set +e
+    set -e errexit
+    build
+    set +e errexit
 
     pkg_manifest
     cd "$og_pwd" >/dev/null
