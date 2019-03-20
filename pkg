@@ -159,11 +159,7 @@ pkg_list() {
 
 pkg_checksum() {
     for src in $source; do
-        if is_remote "$src"; then
-            files="$files ${src##*/}"
-        else
-            files="$files $src"
-        fi
+        files="$files ${src##*/}"
     done
 
     sha256sum -- $files > "$1" || die "failed to generate checksums"
