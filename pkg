@@ -114,15 +114,16 @@ pkg_build() {
     cd "$og_pwd" >/dev/null
 
     cp .manifest "build/pkg/$db_dir/$name/manifest"
-    tar pcvf "${name}_$version-$release.tar.gz" \
+    tar pcvf "PKG-${name}_$version-$release.tar.gz" \
         -C build/pkg . >/dev/null || die "failed to create package"
 
     log "successfuly built $name"
-    log "package is at ${name}_$version-$release.tar.gz"
+    log "package is at PKG-${name}_$version-$release.tar.gz"
 }
 
 pkg_add() {
     name=${1%_*.tar.gz*}
+    name=${name##PKG-}
 
     [ -f "$1" ] || die "file not found"
     [ -z "${1##*.tar.??}" ] || die "add requires a tarball"
