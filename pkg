@@ -23,20 +23,15 @@ pkgfile_read() {
 }
 
 pkg_get() {
-    tar_cache=$PKG_ROOT/$tar_dir/$name
-    mkdir -p build "$tar_cache" || die "couldn't create dirs"
+    mkdir -p build || die "couldn't create build dir"
 
     for src in $source; do
-        if is_remote "$src"; then
-            [ -f "$tar_cache/${src##*/}" ] && {
-                log "found cached $src"
-                continue
-            }
+        [ -f "${src##*/}" ] && continue
 
+        if is_remote "$src"; then
             log "downloading $src"
-            wget -P "$tar_cache" -- "$src" || die "failed to download $src"
+            wget -P "$og_pwd" -- "$src" || die "failed to download $src"
         else
-            [ -f "$src" ] && continue
             die "source file $src not found"
         fi
     done
@@ -54,7 +49,7 @@ pkg_verify() {
 
     [ -f .signature ] && type signify >/dev/null && {
         signify -C  -p "$sig_dir/signature" -x .signature ||
-            die "faild to verify signature"
+            die "failed to verify signature"
     }
 }
 
@@ -80,14 +75,13 @@ pkg_extract() {
 
         case $pkg in
             *.tar|*.tar.??|*.tar.???|*.tar.????)
-                tar xf "$PKG_ROOT/$tar_dir/$name/$file_name" \
-                    -C src --strip-components 1 ||
+                tar xf "../$file_name" -C src --strip-components 1 ||
                     die "couldn't extract $file_name"
             ;;
 
             *.zip)
                 log "warn: You may need to cd into zip directory."
-                unzip -qd src "$PKG_ROOT/$tar_dir/$name/$file_name" ||
+                unzip -qd src "../$file_name" ||
                     die "couldn't extract $file_name"
             ;;
 
@@ -173,14 +167,16 @@ pkg_list() {
 pkg_checksum() {
     for src in $source; do
         if is_remote "$src"; then
-            files="$files $PKG_ROOT/$tar_dir/$name/${src##*/}"
+            files="$files ${src##*/}"
         else
             files="$files $src"
         fi
     done
 
-    sha256sum -- pkgfile $files | sed "s|${PKG_ROOT:-///}||" > "$1" ||
-        die "failed to generate checksums"
+    sha256sum -- pkgfile $files \
+        | sed "s|${PKG_ROOT:-///}||" \
+        | awk '{print "SHA256 ("$2") = "$1}' > "$1" ||
+          die "failed to generate checksums"
     log "Saved checksum to $1"
 }
 
@@ -256,7 +252,6 @@ main() {
 
     og_pwd=$PWD
     db_dir=var/db/pkg
-    tar_dir=var/cache/pkg
 
     trap clean EXIT
     clean
