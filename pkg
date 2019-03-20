@@ -30,7 +30,7 @@ pkg_get() {
 
         if is_remote "$src"; then
             log "downloading $src"
-            wget -P "$og_pwd" -- "$src" || die "failed to download $src"
+            wget -- "$src" || die "failed to download $src"
         else
             die "source file $src not found"
         fi
