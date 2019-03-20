@@ -1,11 +1,11 @@
 #!/bin/sh
+# shellcheck disable=2086,2154,2123,2034,1007 source=/dev/null
 #
 # pkg - package manager for kiss linux.
 
 pkgfile_read() {
     [ -f pkgfile ] || die "pkgfile not found"
 
-    # shellcheck source=/dev/null
     . ./pkgfile || die "syntax error in pkgfile"
 
     [ -z "$name" ] &&    die "name not defined in pkgfile"
