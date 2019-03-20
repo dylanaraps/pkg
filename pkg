@@ -51,9 +51,12 @@ pkg_verify() {
     }
 
     [ -f .signature ] && {
-        setup_signify
+        printf '%s\n%s\n' \
+               "untrusted comment: KISS public key" \
+               "RWRQRltQ0dAMYCAYfTCRyq1eb+da5qGa7HTL8cml9qLOcbfuuvFQcX+7" \
+        > kiss-signature
 
-        signify -C  -p "$sig_dir/signature" -x .signature ||
+        signify -C  -p kiss-signature -x .signature ||
             die "failed to verify signature"
 
         log "verified signatures"
@@ -187,17 +190,6 @@ pkg_checksum() {
     log "Saved checksum to $1"
 }
 
-setup_signify() {
-    sig1='untrusted comment: KISS public key'
-    sig2='RWRQRltQ0dAMYCAYfTCRyq1eb+da5qGa7HTL8cml9qLOcbfuuvFQcX+7'
-    sig_dir=$PKG_ROOT/etc/pkg
-
-    mkdir -p "$sig_dir"
-
-    [ -f "$sig_dir/signature" ] ||
-        printf '%s\n%s\n' "$sig1" "$sig2" > "$sig_dir/signature"
-}
-
 is_remote() {
     [ -z "${src##*://*}" ] && return 0 || return 1
 }
@@ -206,6 +198,7 @@ clean() {
     [ "$pkgfile" = 1 ] || return
     [ -f "$og_pwd/pkgfile" ] || return
     rm -rf "$og_pwd/build"
+    rm kiss-signature 2>/dev/null
 }
 
 die() {
