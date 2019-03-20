@@ -118,6 +118,10 @@ pkg_add() {
     [ -f "$1" ] || die "file not found"
     [ -z "${1##*.tar.??}" ] || die "add requires a tarball"
     [ -n "$PKG_ROOT" ] && mkdir -p "$PKG_ROOT"
+
+    # Test tar file before extraction.
+    tar tf "$1" >/dev/null || die "couldn't extract $name"
+
     [ -f "$PKG_ROOT/$db_dir/$name/manifest" ] && pkg_delete "$name"
 
     tar pxvf "$1" -C "$PKG_ROOT/" || die "couldn't extract $name"
