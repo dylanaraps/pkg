@@ -13,16 +13,13 @@ pkgfile_read() {
     [ -z "$release" ] && die "release not defined in pkgfile"
 
     PATH= type build >/dev/null || die "build() not found in pkgfile."
-    pkg_deps
-    pkgfile=1
-}
 
-pkg_deps() {
     for dep in $depends; do
         pkg_list "$dep" >/dev/null || miss="$miss $dep"
     done
-
     [ -n "$miss" ] && die "missing dependencies:$miss"
+
+    pkgfile=1
 }
 
 pkg_get() {
@@ -180,8 +177,7 @@ pkg_checksum() {
 }
 
 is_remote() {
-    [ -z "${src##*://*}" ] && return 0
-    return 1
+    [ -z "${src##*://*}" ] && return 0 || return 1
 }
 
 clean() {
@@ -191,12 +187,12 @@ clean() {
 }
 
 die() {
-    printf '\e[31m!>\e[m %s\n' "$@" >&2
+    printf '\e[31mERROR>\e[m %s\n' "$@" >&2
     exit 1
 }
 
 log() {
-    printf '\e[32m=>\e[m %s\n' "$1"
+    printf '\e[32m=>\e[m %s\n' "$@"
 }
 
 args() {
@@ -226,14 +222,12 @@ args() {
         l*) pkg_list "$2" ;;
         -v) printf '%s\n' "pkg 0.1.0" ;;
 
-        *)  printf '%s' "\
-usage:
-  - pkg [a]dd pkg.tar.gz
-  - pkg [b]uild
-  - pkg [c]hecksum
-  - pkg [d]el pkg
-  - pkg [l]ist
-"
+        *)
+            log 'pkg [a]dd pkg.tar.gz' \
+                'pkg [b]uild' \
+                'pkg [c]hecksum' \
+                'pkg [d]el pkg' \
+                'pkg [l]ist [pkg]'
         ;;
     esac
 }
