@@ -21,4 +21,3 @@ Package Manager for KISS Linux
    - Install packages from here.
    - `git pull` to receive updates.
    - Send pull requests with new `pkgfiles`.
-   - Create and use multiple branches.
