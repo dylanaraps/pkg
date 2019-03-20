@@ -175,6 +175,13 @@ pkg_checksum() {
     log "Saved checksums to $1"
 }
 
+enter_fakeroot() {
+    type fakeroot >/dev/null || die "fakeroot not installed"
+
+    [ -z "$in_fakeroot" ] &&
+        in_fakeroot=1 exec fakeroot -- "$0" "$@"
+}
+
 clean() {
     [ "$pkgfile" = 1 ] || return
     [ -f "$og_pwd/pkgfile" ] || return
@@ -192,8 +199,6 @@ log() {
 }
 
 args() {
-    [ -z "$in_fakeroot" ] && in_fakeroot=1 exec fakeroot -- pkg "$@"
-
     case $1 in
         a*) pkg_add "$2" ;;
 
@@ -229,7 +234,7 @@ args() {
 }
 
 main() {
-    type fakeroot >/dev/null || die "fakeroot not installed"
+    enter_fakeroot "$@"
 
     og_pwd=$PWD
     db_dir=var/db/pkg
