@@ -50,11 +50,13 @@ pkg_verify() {
         return
     }
 
-    setup_signify
-
     [ -f .signature ] && {
+        setup_signify
+
         signify -C  -p "$sig_dir/signature" -x .signature ||
             die "failed to verify signature"
+
+        log "verified signatures"
     }
 }
 
@@ -186,7 +188,7 @@ pkg_checksum() {
 }
 
 setup_signify() {
-    sig1='untrusted comment: signify public key'
+    sig1='untrusted comment: KISS public key'
     sig2='RWRQRltQ0dAMYCAYfTCRyq1eb+da5qGa7HTL8cml9qLOcbfuuvFQcX+7'
     sig_dir=$PKG_ROOT/etc/pkg
 
