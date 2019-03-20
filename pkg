@@ -184,7 +184,6 @@ pkg_checksum() {
     done
 
     sha256sum -- pkgfile $files \
-        | sed "s|${PKG_ROOT:-///}||" \
         | awk '{print "SHA256 ("$2") = "$1}' > "$1" ||
           die "failed to generate checksums"
     log "Saved checksum to $1"
