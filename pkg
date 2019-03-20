@@ -30,7 +30,7 @@ pkg_get() {
 
         [ -f "$src_name" ] && continue
 
-        if is_remote "$src"; then
+        if [ -z "${src##*://*}" ]; then
             log "downloading $src"
 
             if wget -O "$src_name.partial" -- "$src"; then
@@ -173,10 +173,6 @@ pkg_checksum() {
     done
 
     log "Saved checksums to $1"
-}
-
-is_remote() {
-    [ -z "${src##*://*}" ] && return 0 || return 1
 }
 
 clean() {
