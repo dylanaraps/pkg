@@ -166,9 +166,9 @@ pkg_checksum() {
         fi
     done
 
-    sha256sum -- pkgfile $files \
-        | awk '{print "SHA256 ("$2") = "$1}' > "$1" ||
+    sha256sum -- $files | awk '{print "SHA256 ("$2") = "$1}' > "$1" ||
           die "failed to generate checksums"
+
     log "Saved checksum to $1"
 }
 
