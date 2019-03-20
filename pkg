@@ -48,6 +48,14 @@ pkg_verify() {
     diff .checksum build/.checksum ||
         die "checksum of sources does not match checksum of package" \
             "run 'pkg checksum' to update checksums"
+
+
+    setup_signify
+
+    [ -f .signature ] && type signify >/dev/null && {
+        signify -C  -p "$sig_dir/signature" -x .signature ||
+            die "faild to verify signature"
+    }
 }
 
 pkg_manifest() {
@@ -171,9 +179,20 @@ pkg_checksum() {
         fi
     done
 
-    sha256sum -- $files | sed "s|${PKG_ROOT:-///}||" > "$1" ||
+    sha256sum -- pkgfile $files | sed "s|${PKG_ROOT:-///}||" > "$1" ||
         die "failed to generate checksums"
     log "Saved checksum to $1"
+}
+
+setup_signify() {
+    sig1='untrusted comment: signify public key'
+    sig2='RWRQRltQ0dAMYCAYfTCRyq1eb+da5qGa7HTL8cml9qLOcbfuuvFQcX+7'
+    sig_dir=$PKG_ROOT/etc/pkg
+
+    mkdir -p "$sig_dir"
+
+    [ -f "$sig_dir/signature" ] ||
+        printf '%s\n%s\n' "$sig1" "$sig2" > "$sig_dir/signature"
 }
 
 is_remote() {
