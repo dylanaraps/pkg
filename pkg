@@ -44,10 +44,15 @@ pkg_verify() {
         die "checksum of sources does not match checksum of package" \
             "run 'pkg checksum' to update checksums"
 
+    type signify >/dev/null || {
+        log "WARNING: signify not found"
+        log "WARNING: signature checking disabled"
+        return
+    }
 
     setup_signify
 
-    [ -f .signature ] && type signify >/dev/null && {
+    [ -f .signature ] && {
         signify -C  -p "$sig_dir/signature" -x .signature ||
             die "failed to verify signature"
     }
