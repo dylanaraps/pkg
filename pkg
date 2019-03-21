@@ -74,7 +74,7 @@ pkg_extract() {
         file_name=${pkg##*/}
 
         case $pkg in
-            *.tar|*.tar.??|*.tar.???|*.tar.????)
+            *.tar|*.tar.??|*.tar.???|*.tar.????|*.tgz)
                 tar xf "../$file_name" -C src --strip-components 1 ||
                     die "couldn't extract $file_name"
             ;;
