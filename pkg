@@ -23,8 +23,6 @@ pkgfile_read() {
 }
 
 pkg_get() {
-    mkdir -p build || die "couldn't create build dir"
-
     for src in $source; do
         src_name=${src##*/}
 
@@ -68,7 +66,7 @@ pkg_manifest() {
 
 pkg_extract() {
     cd build >/dev/null || die "can't access build dir"
-    mkdir -p src "pkg/$db_dir/$name"
+    mkdir -p "pkg/$db_dir/$name"
 
     for pkg in $source; do
         file_name=${pkg##*/}
@@ -242,6 +240,9 @@ main() {
 
     og_pwd=$PWD
     db_dir=var/db/pkg
+
+    mkdir -p "$PKG_ROOT/$db_dir" build/src build/pkg ||
+        die "couldn't create required directories."
 
     trap clean EXIT
     clean
