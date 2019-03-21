@@ -89,7 +89,7 @@ pkg_extract() {
         esac
     done
 
-    _(){ [ "$1" = "src/*" ] && die "no source files found";}; _ src/*
+    _(){ [ "$1" = "src/*" ] && log "WARN: no source files found";}; _ src/*
 }
 
 pkg_build() {
